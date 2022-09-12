@@ -1,28 +1,29 @@
-
-  const User = require("../models/userSchema");
-
-const bcript = ("bcryptjs")
-
-
+const User = require("../models/userSchema");
+const {validate}=require("../config/validator")
+const bcrypt = "bcrypt";
 
 //add user to
 const addUser = async (req, res) => {
-    //encription pasword
-    const salt= await bcryptjs.genSalt(10)
-    const hashedPassword = await bcryptjs.hash(req.body.password,salt)
+  const { username, email, password } = req.body;
+  const valid = await validate({ username, email, password });
 
-    const newUser = new User({
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password
+    if (valid) {
+      const hashedpassword = await bcrypt.hash(valid.password,8)
+    const saveedUser = await User.create({
+      username,
+      email,
+      password:hashedpassword,
     });
-    await newUser.save();
-    res.status(201).json({
-        _id: newUser.id,
-        user: newUser.username,
-        email: newUser.email
-    })
-        
-
-}
-module.exports ={addUser}
+    res.status(400).json({
+      success: true,
+      message: "invalide data",
+      savedUser,
+    });
+  } else {
+    res.status(400).json({
+      error: true,
+      message: "invalid",
+    });
+  }
+};
+module.exports = { addUser };
