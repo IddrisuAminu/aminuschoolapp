@@ -9,7 +9,7 @@ const app = express();
 connectDb();
 // middleware
 app.use(express.json());
-app.use("api/users", userRoute);
+app.use("/api/users", userRoute);
 
 app.use(morgan("dev"));
 

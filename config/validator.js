@@ -1,14 +1,9 @@
 const yup = require("yup");
 function validate(data) {
-  const userSchema = yup.oject().shape({
-    username: yup.string().require("username must be fill").main(3).max(20),
-    email: yup.string().require("email must be must be fill").main(3).max(20),
-    password: yup
-      .string()
-      .require("password must be fill")
-      .main("username must be fill")
-      .main(3)
-      .max(20),
+  const userSchema = yup.object().shape({
+    username: yup.string().required("username must be fill").min(3).max(20),
+    email: yup.string().required("email must be must be fill").min(3).max(50),
+    password: yup.string().required("password must be fill").min(3).max(20),
   });
   return userSchema.validate(data);
 }
