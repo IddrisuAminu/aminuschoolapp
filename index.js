@@ -1,22 +1,25 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const connectDb = require("./config/connectDb");
-const userRoute = require("./userRoute/userRoutes");
-
+const connectDB = require("./config/connectDB");
+const userRoute = require("./routes/userRoute");
+const schoolRoute = require("./routes/schoolRoute");
 const morgan = require("morgan");
-dotenv.config();
+
 const app = express();
-connectDb();
-// middleware
+dotenv.config();
+connectDB();
+
+//middlewares
 app.use(express.json());
 app.use("/api/users", userRoute);
-
+app.use("/api/schools", schoolRoute);
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
-  res.send("<>Welcome to Lassia Tuoluu SHS>");
+  res.send("welcome to our school portal");
 });
 
 const PORT = process.env.PORT || 3180;
-
-app.listen(PORT, () => console.log(`server is running on port: ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`server is running on :${PORT}`);
+});

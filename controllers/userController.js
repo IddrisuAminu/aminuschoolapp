@@ -1,88 +1,89 @@
-const User = require("../models/userSchema");
-const { validate } = require("../config/validator")
+const User = require("../models/userSchema")
+const bcrypt = require("bcrypt")
+const {validate} =require("../config/Validator")
+const {generateToken}= require("../utils/generateToken")
 
-
-const{generateToken}= require("../utils/generateToken")
-
-const bcrypt = "bcrypt";
-
-//add user to
+// adding a user
 const addUser = async (req, res) => {
   const { username, email, password } = req.body;
   const valid = await validate({ username, email, password });
-
-    if (valid) {
-      const hashedpassword = await bcrypt.hash(valid.password,8)
-    const saveedUser = await User.create({
+  if (valid) {
+  
+    const hashedPassword =await bcrypt.hash(valid.password, 8)
+    const savedUser = await User.create({
       username,
       email,
-      password:hashedpassword,
+      password:hashedPassword,
     });
-      
-      
-      if (user) {
-        res.status(200).json({
-          username: user.username,
-          email: user.email,
-          id: user.id,
-          token: generateToken(User._id)
-        });
 
+     if (User) {
+       res.status(201).json({
+         username: User.username,
+         email: User.email,
+         id: User._id,
+         token: generateToken(User._id),
+       });
+     }
 
-        
-      }
-    res.status(400).json({
+    res.status(201).json({
       success: true,
-      message: "invalide data",
+      message: "user created",
       savedUser,
     });
   } else {
     res.status(400).json({
       error: true,
-      message: "invalid",
+      message: "Invalid data",
     });
   }
-
-  };
-  //user login 
-  async function loginUser(req, res) {
-    try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ email });
-      if (!user) {
-        res.status(404).json({
-          error: true,
-          message: "Acount not found"
-        });
-
-      }
-      const isValid = await bcrypt.compare(user, password, email);
-      if (!isValid) {
-        return res.status(404).json({
-          error: true,
-          message: "invalid password"
-        })
-      }
-      return res.status(200).send({
-        success: true,
-        message: "User logged in successfully"
-      });
-
-    } catch (error) {
-      
-      console.error(error);
-      return res.status(500).json({
-        error: true,
-        message: "Couldn't login . please try again."
-})
-    }
-}
-  // getinh a user
   
-const getUsers = async (req, res) => {
-  const users = await User.findOne();
-  res.status(200).json(users);
+};
 
+
+// user login
+async function loginUser(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({email});
+
+    if (!user) {
+      return res.status(404).json({
+        error: true,
+        message: "user not found",
+      });
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
+
+    if (!isValid) {
+      return res.status(400).json({
+        error: true,
+        message: "Invalid password",
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "User logged in successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: true,
+      message: "Couldn't login. Please try again.",
+    });
   }
+}
 
-module.exports = { addUser,loginUser ,getUsers};
+//getting a user
+const getUsers = async(req, res) => {
+  const users = await User.find();
+  res.status(200).json(users);
+}
+
+
+
+
+
+module.exports = { addUser, loginUser, getUsers }
